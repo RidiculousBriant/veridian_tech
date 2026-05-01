@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { useTableStore } from "@/store/useTableStore";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const tables = useTableStore((state) => state.tables ?? []);
@@ -119,8 +120,7 @@ const Index = () => {
         />
       </div>
 
-      {/* FILTER */}
-      <div className="my-6 flex">
+      <div className="my-6 flex items-center gap-3">
         <div className="flex flex-wrap gap-2 bg-green-100 p-2 rounded-full shadow-sm">
           {filters.map((f) => (
             <button
@@ -137,6 +137,13 @@ const Index = () => {
             </button>
           ))}
         </div>
+
+        <Link
+          to="/customerTables"
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white shadow hover:bg-blue-700 transition"
+        >
+          View Customer Tables
+        </Link>
       </div>
 
       {/* TABLE GRID WITH SECTIONS */}
