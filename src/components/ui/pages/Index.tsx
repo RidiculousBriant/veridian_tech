@@ -120,7 +120,8 @@ const Index = () => {
         />
       </div>
 
-      <div className="my-6 flex items-center gap-3">
+      <div className="my-6 flex items-center justify-between flex-wrap gap-4">
+        {/* FILTERS */}
         <div className="flex flex-wrap gap-2 bg-green-100 p-2 rounded-full shadow-sm">
           {filters.map((f) => (
             <button
@@ -138,11 +139,13 @@ const Index = () => {
           ))}
         </div>
 
+        {/* BUTTON */}
         <Link
           to="/customerTables"
-          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white shadow hover:bg-blue-700 transition"
+          className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium 
+               bg-green-600 text-white shadow hover:bg-green-700 transition"
         >
-          View Customer Tables
+          Customer Tables
         </Link>
       </div>
 
