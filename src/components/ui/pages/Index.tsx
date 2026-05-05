@@ -15,14 +15,16 @@ import { Link } from "react-router-dom";
 
 const Index = () => {
   const tables = useTableStore((state) => state.tables ?? []);
-  const toggleTable = useTableStore((state) => state.toggleTable);
   const [filter, setFilter] = useState<"all" | TableStatus>("all");
 
   const stats = useMemo(() => {
     return {
       total: tables.length,
       vacant: tables.filter((t) => t.status === "vacant").length,
+      reserved: tables.filter((t) => t.status === "reserved").length,
       occupied: tables.filter((t) => t.status === "occupied").length,
+      cleaning: tables.filter((t) => t.status === "cleaning in progress")
+        .length,
     };
   }, [tables]);
 
@@ -56,20 +58,14 @@ const Index = () => {
     label: string;
     icon: React.ReactNode;
   }[] = [
+    { key: "all", label: "All", icon: <Grid3X3 className="w-4 h-4" /> },
+    { key: "vacant", label: "Vacant", icon: <CircleDot /> },
+    { key: "reserved", label: "Reserved", icon: <Users2 /> },
+    { key: "occupied", label: "Occupied", icon: <CheckCircle2 /> },
     {
-      key: "all",
-      label: "All",
-      icon: <Grid3X3 className="w-4 h-4" />,
-    },
-    {
-      key: "vacant",
-      label: "Vacant",
-      icon: <CircleDot className="w-4 h-4" />,
-    },
-    {
-      key: "occupied",
-      label: "Occupied",
-      icon: <CheckCircle2 className="w-4 h-4" />,
+      key: "cleaning in progress",
+      label: "Cleaning",
+      icon: <Table2 />,
     },
   ];
 
@@ -139,14 +135,17 @@ const Index = () => {
           ))}
         </div>
 
-        {/* BUTTON */}
-        <Link
-          to="/customerTables"
-          className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium 
+        <div className="flex flex-wrap gap-2 bg-green-100 p-2 rounded-full shadow-sm">
+          <Link
+            to="/customerTables"
+            target="_blank"
+            className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium 
                bg-green-600 text-white shadow hover:bg-green-700 transition"
-        >
-          Customer Tables
-        </Link>
+          >
+            <Grid3X3 className="w-4 h-4" />
+            Customer Tables
+          </Link>
+        </div>
       </div>
 
       {/* TABLE GRID WITH SECTIONS */}
@@ -159,12 +158,7 @@ const Index = () => {
             {/* TABLES */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {tables.map((table) => (
-                <TableCard
-                  key={table.id}
-                  table={table}
-                  onToggle={toggleTable}
-                  variant="admin"
-                />
+                <TableCard key={table.id} table={table} variant="admin" />
               ))}
             </div>
           </div>

@@ -1,4 +1,4 @@
-export type TableStatus = "vacant" | "occupied";
+export type TableStatus = "vacant" | "occupied" | "reserved" | "cleaning in progress";
 
 export type Table = {
   id: number;
@@ -8,4 +8,5 @@ export type Table = {
   seats: number;
   status: TableStatus;
   customerName?: string;
+  customerSeats?: number;
 };
