@@ -21,6 +21,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { toast } from "sonner";
+
 type Props = {
   table: Table;
   variant?: "admin" | "customer";
@@ -86,16 +96,40 @@ export function TableCard({ table, variant = "admin" }: Props) {
   const [name, setName] = useState("");
   const [seatInput, setSeatInput] = useState(1);
 
-  // ✅ FIX: only initialize when dialog OPENS
+  const statusMessages: Record<TableStatus, string> = {
+    vacant: "is now vacant",
+    reserved: "has been reserved",
+    occupied: "is now occupied",
+    "cleaning in progress": "is being cleaned",
+  };
+
+  let minSeats = 1;
+
+  if (maxSeats <= 2) minSeats = 1;
+  else if (maxSeats <= 6) minSeats = 3;
+  else if (maxSeats <= 10) minSeats = 6;
+
+  const seatOptions = Array.from(
+    { length: maxSeats - minSeats + 1 },
+    (_, i) => minSeats + i,
+  );
+
   useEffect(() => {
     if (!open) return;
 
     setName(table.customerName || "");
 
-    setSeatInput(
-      table.customerSeats && table.customerSeats > 0 ? table.customerSeats : 1,
-    );
-  }, [open]);
+    let initialSeats =
+      table.customerSeats && table.customerSeats > 0
+        ? table.customerSeats
+        : minSeats;
+
+    // clamp inside range
+    if (initialSeats < minSeats) initialSeats = minSeats;
+    if (initialSeats > maxSeats) initialSeats = maxSeats;
+
+    setSeatInput(initialSeats);
+  }, [open, minSeats, maxSeats]);
 
   // ==========================
   // STATUS CLICK
@@ -108,6 +142,8 @@ export function TableCard({ table, variant = "admin" }: Props) {
     }
 
     setStatus(table.id, status);
+
+    toast.success(`Table ${table.name} ${statusMessages[status]}`);
   };
 
   // ==========================
@@ -121,6 +157,10 @@ export function TableCard({ table, variant = "admin" }: Props) {
         name,
         seats: seatInput,
       });
+
+      toast.success(
+        `Table ${table.name} ${statusMessages[pendingStatus]} (${seatInput} seats)`,
+      );
     }
 
     setOpen(false);
@@ -212,7 +252,9 @@ export function TableCard({ table, variant = "admin" }: Props) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="bg-green-950 border border-green-800 text-white">
           <DialogHeader>
-            <DialogTitle className="text-green-300">Table Details</DialogTitle>
+            <DialogTitle className="text-green-300">
+              Table Details for {table.name}
+            </DialogTitle>
           </DialogHeader>
 
           {/* NAME */}
@@ -221,6 +263,7 @@ export function TableCard({ table, variant = "admin" }: Props) {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
+              placeholder="Enter Customer Name"
               className="w-full rounded-lg px-3 py-2 bg-green-900 border border-green-700 text-white mt-2"
             />
           </div>
@@ -230,25 +273,25 @@ export function TableCard({ table, variant = "admin" }: Props) {
             {/* SEATS INPUT */}
             <div className="space-y-1 mt-3">
               <label className="text-sm text-green-300">
-                Number of Seats (Max: {maxSeats})
+                Number of Seats ({minSeats} - {maxSeats})
               </label>
 
-              <input
-                type="number"
-                min={1}
-                max={maxSeats}
-                value={seatInput}
-                onChange={(e) => {
-                  let value = Number(e.target.value);
+              <Select
+                value={seatInput.toString()}
+                onValueChange={(value) => setSeatInput(Number(value))}
+              >
+                <SelectTrigger className="w-full bg-green-900 border-green-700 text-white mt-2">
+                  <SelectValue placeholder="Select seats" />
+                </SelectTrigger>
 
-                  // clamp value between 1 and maxSeats
-                  if (value < 1) value = 1;
-                  if (value > maxSeats) value = maxSeats;
-
-                  setSeatInput(value);
-                }}
-                className="w-full rounded-lg px-3 py-2 bg-green-900 border border-green-700 text-white mt-2"
-              />
+                <SelectContent className="bg-green-950 border-green-800 text-white">
+                  {seatOptions.map((seat) => (
+                    <SelectItem key={seat} value={seat.toString()}>
+                      {seat} {seat === 1 ? "seat" : "seats"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

@@ -16,14 +16,19 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
+        <Toaster
+          position="top-right"
+          richColors
+          toastOptions={{
+            className:
+              "bg-green-900 border border-green-700 text-green-100 shadow-lg",
+          }}
+        />
 
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-
             <Route path="/customerTables" element={<CustomerTables />} />
-
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
